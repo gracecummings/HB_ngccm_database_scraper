@@ -52,7 +52,7 @@ if __name__=='__main__':
             else:
                 row.append("n/a")
         values.append(row)
-    sheetrange = HB_database_scraper.sheetRangeFinder(modules,sortmodchars,"Sheet1")#Name of google sheet tab that I already made
+    sheetrange = HB_database_scraper.sheetRangeFinder(modules,sortmodchars,"Assembled NgCCM Modules")#Name of google sheet tab that I already made
 
     #Google Credentials and uploading
     print "Starting the Google Credential Authorization" 
@@ -65,4 +65,4 @@ if __name__=='__main__':
     data = [{'range':sheetrange,'values':values}]
     body = {'valueInputOption':'RAW','data':data}
     result = sheet.values().batchUpdate(spreadsheetId=SPREADSHEET_ID,body=body).execute()
-
+    print('{0} cells updated'.format(result.get('updatedCells')))
