@@ -32,6 +32,14 @@ if __name__=='__main__':
         #Filling a dictionary for each module
         module["Module Number"] = HB_database_scraper.moduleNumber(t)
         HB_database_scraper.moduleCharFill(t,module)#Fills a dictionary for with characteristic
+
+        #Specail Modules that have known problems
+        if module["Module Number"] == "59":
+            module["Secondary Control Board SN"] = "F796"#was recorded incorrectly as a characteristic and needs changing in database
+        if module["Module Number"] == "57":
+            module["Secondary Control Board SN"] = "n/a"#Was made, then deconstructed, removing for summary purposes
+            module["Primary Control Board SN"] = "n/a"
+            module["Clock Board SN"] = "n/a"
         modules.append(module)
 
     #Building clk card dictionaries
@@ -45,6 +53,7 @@ if __name__=='__main__':
         t = HB_database_scraper.buildHTMLTree(templatelink,l)
         clkcard["Clk Card Number"] = HB_database_scraper.moduleNumber(t)
         clkcard["Factory SN"]      = HB_database_scraper.getClkFactorySN(t)
+        HB_database_scraper.moduleCharFill(t,clkcard)
         HB_database_scraper.get1Wire("Clock Board 1Wire ID","Clk Card Number","Clock Board SN",modules, clkcard)
 
         #Checking which Module it is within
@@ -63,6 +72,7 @@ if __name__=='__main__':
         ctrlcard["Ctrl Card Number"] = HB_database_scraper.moduleNumber(t)
         if int(ctrlcard["Ctrl Card Number"]) < 100:#We have a few clearly incorrect SN in database
             continue
+        HB_database_scraper.moduleCharFill(t,ctrlcard)
         ctrlcard["Factory SN"] = HB_database_scraper.getCtrlFactorySN(t)
         HB_database_scraper.getModuleInfo(modules,ctrlcard)
         if "Is Primary" in ctrlcard:
@@ -73,6 +83,7 @@ if __name__=='__main__':
         else:
             ctrlcard["1 Wire"] = "not yet accessed"
 
+   
         ctrls.append(ctrlcard)
 
     #Preparing the information for spreadsheet upload
@@ -84,7 +95,9 @@ if __name__=='__main__':
     sortedclk    = HB_database_scraper.charSorterClk(clkchars)
     ctrls        = sorted(ctrls, key = lambda ctrl:int(ctrl["Ctrl Card Number"]))
     ctrlchars    = HB_database_scraper.totalKeys(ctrls)
-    sortedctrl   = HB_database_scraper.charSorterCtrl(ctrlchars) 
+    #ctrlchars    = ctrls[4].keys()#total keys is hacky and fails here and I need results
+    sortedctrl   = HB_database_scraper.charSorterCtrl(ctrlchars)
+
     
     #What will be written to the sheet
     values = []
@@ -112,7 +125,7 @@ if __name__=='__main__':
     SPREADSHEET_ID = '1nE30FxWRhQVw_89h6eNmQjSEmHBZQp_GBM_8ey9LY5A'#In URL of the page you want
     data = [{'range':sheetrange,'values':values}]
     body = {'valueInputOption':'RAW','data':data}
-    result = sheet.values().batchUpdate(spreadsheetId=SPREADSHEET_ID,body=body).execute()
+    result = sheet.values().batchUpdate(spreadsheetId=SPREADSHEET_ID,body=body).execute()#
     data1 = [{'range':sheet1range,'values':values1}]
     body1 = {'valueInputOption':'RAW','data':data1}
     result1 = sheet.values().batchUpdate(spreadsheetId=SPREADSHEET_ID,body=body1).execute()
@@ -120,4 +133,8 @@ if __name__=='__main__':
     body2 = {'valueInputOption':'RAW','data':data2}
     result2 = sheet.values().batchUpdate(spreadsheetId=SPREADSHEET_ID,body=body2).execute()
     print "Google doc updated, check it out"
+    #
+
+
+
     

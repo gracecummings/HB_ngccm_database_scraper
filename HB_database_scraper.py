@@ -36,24 +36,30 @@ def moduleCharFill(htmltree,moduledict):
         
 def getClkFactorySN(htmltree):
     td = htmltree.xpath('//td/text()')#This can be made better
-    snentry = td[5]
-    snparts = snentry.split("AMTI:")
-    if len(snparts) > 1:
-        sn = snparts[1]
+    if len(td) > 4:
+        snentry = td[5]
+        snparts = snentry.split("AMTI:")
+        if len(snparts) > 1:
+            sn = snparts[1]
+        else:
+            snpart2 = snparts[0].split(": ")
+            sn = snpart2[1]
     else:
-        snpart2 = snparts[0].split(": ")
-        sn = snpart2[1]
+        sn = "unavailable"
     return sn
 
 def getCtrlFactorySN(htmltree):
     td = htmltree.xpath('//td/text()')#This can be made better
-    snentry = td[5]
-    listsnent = snentry.split("AMTI:")
-    if len(listsnent) > 1:
-        sn = listsnent[1]
+    if len(td) > 4:
+        snentry = td[5]
+        listsnent = snentry.split("AMTI:")
+        if len(listsnent) > 1:
+            sn = listsnent[1]
+        else:
+            l2 = listsnent[0].split(" ")
+            sn = l2[-1]
     else:
-        l2 = listsnent[0].split(" ")
-        sn = l2[-1]
+        sn = "unavailable"
     return sn
 
 def getWhichModule(modkey,cardkey,modules,card):
@@ -154,7 +160,7 @@ def charSorterClk(listkeys):
         if "NgCCM Module" in char:
             l2.append(char)
             l.remove(char)
-    return l2
+    return l2+l
 
 def charSorterCtrl(listkeys):
     l = listkeys
@@ -165,6 +171,10 @@ def charSorterCtrl(listkeys):
             l.remove(char)
     for char in l:
         if "1 Wire" in char:
+            l2.append(char)
+            l.remove(char)
+    for char in l:
+        if "OneWire Sensor ID" in char:
             l2.append(char)
             l.remove(char)
     for char in l:
@@ -179,7 +189,20 @@ def charSorterCtrl(listkeys):
         if "Is Primary" in char:
             l2.append(char)
             l.remove(char)
-    return l2
+    for char in l:
+        if "VTRx Serial Number" in char:
+            l2.append(char)
+            l.remove(char)
+    for char in l:
+        if "tested" in char:
+            l2.append(char)
+            l.remove(char)
+    for char in l:
+        if "Location" in char:
+            l2.append(char)
+            l.remove(char)
+
+    return l2+l
 
 def makeValueList(valuelist,objs,sortedobjs):
     for obj in objs:
